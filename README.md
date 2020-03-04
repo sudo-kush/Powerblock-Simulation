@@ -1,6 +1,6 @@
 # Powerblock-Simulation
 
-Step 1: Run components.py 
+Step 1: Download all files into same folder
 
-Step 2: Run power.py 
+Step 2: Run optimization.py
 
