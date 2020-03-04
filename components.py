@@ -1,18 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Feb 26 12:31:44 2020
-
-@author: Remy
-"""
-
-# -*- coding: utf-8 -*-
-"""
 function definitions for steam cycle components
 """
+
 from iapws import IAPWS97 as steam
 
 
-def Turbine(Mi, Me, A, B, C, PR, load):
+def Turbine(Mi, Me, A, B, C, pE_A, pE_B, pE_C, PR, load):
     
     efficiency = (0.86-0.72)/(1.0-0.6)*load + 0.72
     
@@ -33,7 +27,6 @@ def Turbine(Mi, Me, A, B, C, PR, load):
     if(C):
         numExtract += 1
 
-    percentExtracted = 5 / 100
     
     if(numExtract == 1):
         TH = steam(P=Mi.P,x=1).T
@@ -44,8 +37,9 @@ def Turbine(Mi, Me, A, B, C, PR, load):
         A.h = Mi.h - efficiency * (Mi.h - hAs)
         A.T = steam(P=A.P, h=A.h).T
         A.s = steam(P=A.P, h=A.h).s
-        A.m = Mi.m * percentExtracted
+        A.m = Mi.m * pE_A
         Me.m = Mi.m - A.m
+        Power = Mi.m*(Mi.h-A.h) + (Mi.m-A.m)*(A.h - Me.h)
     elif(numExtract == 2):
         TH = steam(P=Mi.P,x=1).T
         TL = steam(P=Me.P,x=1).T
@@ -55,15 +49,16 @@ def Turbine(Mi, Me, A, B, C, PR, load):
         A.h = Mi.h - efficiency * (Mi.h - hAs)
         A.T = steam(P=A.P, h=A.h).T
         A.s = steam(P=A.P, h=A.h).s
-        A.m = Mi.m * percentExtracted
+        A.m = Mi.m * pE_A
         TB = 1*(TH-TL)/(numExtract+1) + TL
         B.P = steam(T=TB, x=1).P
         hBs = steam(P=B.P, s=ses).h
         B.h = Mi.h - efficiency * (Mi.h - hBs)
         B.T = steam(P=B.P, h=B.h).T
         B.s = steam(P=B.P, h=B.h).s
-        B.m = Mi.m * percentExtracted
+        B.m = Mi.m * pE_B
         Me.m = Mi.m - A.m - B.m
+        Power = Mi.m*(Mi.h-A.h) + (Mi.m-A.m)*(A.h-B.h) + (Mi.m-A.m-B.m)*(B.h-Me.h)
     elif(numExtract == 3):
         TH = steam(P=Mi.P,x=1).T
         TL = steam(P=Me.P,x=1).T
@@ -73,26 +68,26 @@ def Turbine(Mi, Me, A, B, C, PR, load):
         A.h = Mi.h - efficiency * (Mi.h - hAs)
         A.T = steam(P=A.P, h=A.h).T
         A.s = steam(P=A.P, h=A.h).s
-        A.m = Mi.m * percentExtracted
+        A.m = Mi.m * pE_A
         TB = 2*(TH-TL)/(numExtract+1) + TL
         B.P = steam(T=TB, x=1).P
         hBs = steam(P=B.P, s=ses).h
         B.h = Mi.h - efficiency * (Mi.h - hBs)
         B.T = steam(P=B.P, h=B.h).T
         B.s = steam(P=B.P, h=B.h).s
-        B.m = Mi.m * percentExtracted
+        B.m = Mi.m * pE_B
         TC = 1*(TH-TL)/(numExtract+1) + TL
         C.P = steam(T=TC, x=1).P
         hCs = steam(P=C.P, s=ses).h
         C.h = Mi.h - efficiency * (Mi.h - hCs)
         C.T = steam(P=C.P, h=C.h).T
         C.s = steam(P=C.P, h=C.h).s
-        C.m = Mi.m * percentExtracted
+        C.m = Mi.m * pE_C
         Me.m = Mi.m - A.m - B.m - C.m
+        Power = Mi.m*(Mi.h-A.h) + (Mi.m-A.m)*(A.h-B.h) + (Mi.m-A.m-B.m)*(B.h-C.h) + (Mi.m-A.m-B.m-C.m)*(C.h-Me.h)
     else:
         Me.m = Mi.m
-        
-    Power = Me.m * (Mi.h - Me.h)
+        Power = Mi.m*(Mi.h - Me.h)
     
     return Power
 
@@ -178,13 +173,25 @@ def Deaerator(A2, B, Mi, Me):
         
 def SteamGenerator(Mi, Me):
     
-    if(Mi.m == Me.m):
+    if(Me.m - 0.0001 <= Mi.m <= Me.m + 0.00001):
         Q = Mi.m * (Me.h - Mi.h)
     
     return Q
 
 
     
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
