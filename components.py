@@ -116,17 +116,17 @@ def FW_extracted(A2, B1, B2):
     
 def Condenser(F2, Mi, Me):
     
-    if(F2):
-        mMF = Me.m = Mi.m + F2.m
-        hMF = (Mi.m*Mi.h + F2.m*F2.h)/mMF
-    else:
-        mMF = Me.m = Mi.m
-        hMF = Mi.h
-    
     Me.P = Mi.P
     Me.h = steam(P=Me.P, x=0).h
     Me.s = steam(P=Me.P, x=0).s
     Me.T = steam(P=Me.P, x=0).T
+    
+    if(F2):
+        mMF = Me.m = Mi.m + F2.m
+        hMF = (Me.m*Me.h + F2.m*F2.h)/mMF
+    else:
+        mMF = Me.m 
+        hMF = Me.h
     
     Q = mMF*(hMF - Me.h)
     return Q
