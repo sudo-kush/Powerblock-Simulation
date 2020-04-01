@@ -32,20 +32,8 @@ pE_E = 5 / 100      # percentExtracted at E
 pE_F = 5 / 100      # percentExtracted at F
 '''
 
-def Cycle(pE_ALL):
+def Cycle(load,PR_HP,PR_IP,PR_LP,pE_A,pE_B,pE_C,pE_D,pE_E,pE_F):
     
-    load = pE_ALL[0] 
-    PR_HP = pE_ALL[1]
-    PR_IP = pE_ALL[2]
-    PR_LP = pE_ALL[3]
-    pE_A = pE_ALL[4]
-    pE_B = pE_ALL[5]
-    pE_C = pE_ALL[6]
-    pE_D = pE_ALL[7]
-    pE_E = pE_ALL[8]
-    pE_F = pE_ALL[9]
-    
-    #load,PR_HP,PR_IP,PR_LP,pE_A,pE_B,pE_C,pE_D,pE_E,pE_F
     # set inital state at the high pressure turbine inlet
     M1 = state()
     M1.T = 585 + 273
@@ -133,7 +121,7 @@ def Cycle(pE_ALL):
     nth = Power/Qin
     nc = 1 - M6.T / M1.T
     
-    return -Power
+    return nth, Power
  
 
 
