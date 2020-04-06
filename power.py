@@ -34,9 +34,9 @@ pE_F = 5 / 100      # percentExtracted at F
 
 def Cycle(load,flow):
     
-    PR_HP = 7/19 
-    PR_IP = 1/7
-    PR_LP = .1/1
+    PR_HP = 2/19 
+    PR_IP = .8/2
+    PR_LP = .01/.8
     pE_A = 10/100
     pE_B = 10/100
     pE_C = 2/100

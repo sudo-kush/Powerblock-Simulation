@@ -8,7 +8,7 @@ from iapws import IAPWS97 as steam
 
 def Turbine(Mi, Me, A, B, C, pE_A, pE_B, pE_C, PR, load):
     
-    efficiency = (0.86-0.72)/(1.0-0.6)*load + 0.72
+    efficiency = (0.86-0.72)/(1.0-0.6)*(load-0.6) + 0.51
     
     # find exit properties
     ses = Mi.s # isentropic exit entropy (kJ/kg/K)

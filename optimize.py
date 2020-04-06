@@ -23,18 +23,19 @@ Power = np.zeros(9)
 pE_ALL = np.zeros(9)
 pE_A = 5 / 100      # percentExtracted at A
 pE_B = 5 / 100      # percentExtracted at B
-pE_C = 5 / 100      # percentExtracted at C
-pE_D = 5 / 100      # percentExtracted at D
-pE_E = 5 / 100      # percentExtracted at E
-pE_F = 5 / 100      # percentExtracted at F
+pE_C = 5 / 100    # percentExtracted at C
+pE_D = 5 / 100    # percentExtracted at D
+pE_E = 5 / 100     # percentExtracted at E
+pE_F = 5 / 100    # percentExtracted at F
 
 highPressure = 19
-intPressure = 5
-lowPressure = .5
+intPressure = 7
+lowPressure = 1
 condPressure = 0.1
 
 
 for i in range(len(PR_HP)):
+    k = 5/100 
     #PR_HP[i] = 1.0 - 0.1*(i+1)
     #PR_IP[i] = 1.0 - 0.1*(i+1)
     #PR_LP[i] = 1.0 - 0.1*(i+1)
@@ -43,8 +44,8 @@ for i in range(len(PR_HP)):
     PR_LP[i] = condPressure/lowPressure
     pE_ALL[i] = 0.01*(i+1) + 0.01 
     #pE_ALL[i] = 0.01 
-    #load[i] = (1.0-0.6)/(len(PR_HP)-1)*i + 0.6
-    nth[i], Power[i] = power.Cycle(1.0,PR_HP[i],PR_IP[i],PR_LP[i],pE_ALL[0],pE_ALL[0],pE_ALL[0],pE_ALL[0],pE_ALL[i],pE_ALL[i])
+    load[i] = (1.0-0.6)/(len(PR_HP)-1)*i + 0.6
+    nth[i], Power[i] = power.Cycle(load[i],PR_HP[i],PR_IP[i],PR_LP[i],pE_ALL[i],pE_ALL[i],pE_ALL[0],pE_ALL[0],pE_ALL[0],pE_ALL[0])
     
 d = {'PR_HP': pd.Series(PR_HP),
      'PR_IP': pd.Series(PR_IP),

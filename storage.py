@@ -3,7 +3,7 @@
 import numpy as np
 import power 
 
-nth, P, Qin = power.Cycle(1.0, 252)
+nth, P, Qin = power.Cycle(1.0, 10)
 "Basic Set Up"
 Nt = 120                                                                         #Number of tanks in system
 Od = 2.03                                                                      #Outer Diameter of tank 'm'
@@ -191,7 +191,7 @@ print('Electric Power Out: ',round(P/1000,2),'MWe')
 print('Thermal Efficiency: ',round(nth*100,2),'%')
 #%%
 
-Q = Qin
+Q = 95
 
 if M >= 0:
     Q = Q * -1

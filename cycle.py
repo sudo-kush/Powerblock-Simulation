@@ -23,19 +23,20 @@ def PRINT(M):
 
 load = 1.0
 
+
 # set inital state at the high pressure turbine inlet
 M1 = state()
 M1.T = 585 + 273
-M1.P = 19
-M1.m = 10
+M1.P = 13.5
+M1.m = 350
 M1.h = steam(T=M1.T, P=M1.P).h
 M1.s = steam(T=M1.T, P=M1.P).s
 
 # high pressure turbine states and function
 M2 = state()
 A = state()
-PR_HP = 10 / M1.P   # pressure ratio of the high pressure turbine
-pE_A = 5 / 100      # percentExtracted at A
+PR_HP = 7 / M1.P   # pressure ratio of the high pressure turbine
+pE_A =  10 / 100      # percentExtracted at A
 PowerHP = components.Turbine(M1, M2, A, None, None, pE_A, None, None, PR_HP, load)
 
 # reheat after high pressure turbine
@@ -46,9 +47,9 @@ Qin_reheat = components.Reheat(M2, M3, 585+273)
 M4 = state()
 B = state()
 C = state()
-PR_IP = 3 / M3.P    # pressure ratio of the intermediate pressure turbine
-pE_B = 1 / 100      # percentExtracted at B
-pE_C = 1 / 100      # percentExtracted at C
+PR_IP = 1 / M3.P    # pressure ratio of the intermediate pressure turbine
+pE_B = 10 / 100      # percentExtracted at B
+pE_C = 5 / 100      # percentExtracted at C
 PowerIP = components.Turbine(M3, M4, B, C, None, pE_B, pE_C, None, PR_IP, load)
 
 # low pressure turbine states and function
@@ -56,10 +57,10 @@ M5 = state()
 D = state()
 E = state()
 F = state()
-PR_LP = 1 / M4.P    # pressure ratio of the low pressure turbine
-pE_D = 1 / 100      # percentExtracted at D
-pE_E = 1 / 100      # percentExtracted at E
-pE_F = 1 / 100      # percentExtracted at F
+PR_LP = 0.1 / M4.P    # pressure ratio of the low pressure turbine
+pE_D = 5 / 100      # percentExtracted at D
+pE_E = 5 / 100      # percentExtracted at E
+pE_F = 5 / 100      # percentExtracted at F
 PowerLP = components.Turbine(M4, M5, D, E, F, pE_D, pE_E, pE_F, PR_LP, load)
 
 # extracted steam through closed feedwater train
@@ -120,7 +121,7 @@ Qin = Qin_reheat + Qin_main
 nth = Power/Qin
 nc = 1 - M6.T / M1.T
 
-
+print(Power, nth)
 
 
 
