@@ -29,62 +29,54 @@ def Turbine(Mi, Me, A, B, C, pE_A, pE_B, pE_C, PR, load):
 
     
     if(numExtract == 1):
-        TH = steam(P=Mi.P,x=1).T
-        TL = steam(P=Me.P,x=1).T
-        TA = 1*(TH-TL)/(numExtract+1) + TL
-        A.P = steam(T=TA, x=1).P
-        hAs = steam(P=A.P, s=ses).h
-        A.h = Mi.h - efficiency * (Mi.h - hAs)
-        A.T = steam(P=A.P, h=A.h).T
-        A.s = steam(P=A.P, h=A.h).s
+        A.P = Me.P
+        A.h = Me.h
+        A.T = Me.T
+        A.s = Me.s
         A.m = Mi.m * pE_A
         Me.m = Mi.m - A.m
-        Power = Mi.m*(Mi.h-A.h) + (Mi.m-A.m)*(A.h - Me.h)
+        Power = Mi.m*(Mi.h-Me.h)
     elif(numExtract == 2):
         TH = steam(P=Mi.P,x=1).T
         TL = steam(P=Me.P,x=1).T
-        TA = 2*(TH-TL)/(numExtract+1) + TL
+        TA = (TH-TL)/(numExtract) + TL
         A.P = steam(T=TA, x=1).P
         hAs = steam(P=A.P, s=ses).h
         A.h = Mi.h - efficiency * (Mi.h - hAs)
         A.T = steam(P=A.P, h=A.h).T
         A.s = steam(P=A.P, h=A.h).s
         A.m = Mi.m * pE_A
-        TB = 1*(TH-TL)/(numExtract+1) + TL
-        B.P = steam(T=TB, x=1).P
-        hBs = steam(P=B.P, s=ses).h
-        B.h = Mi.h - efficiency * (Mi.h - hBs)
-        B.T = steam(P=B.P, h=B.h).T
-        B.s = steam(P=B.P, h=B.h).s
+        B.P = Me.P
+        B.h = Me.h
+        B.T = Me.T
+        B.s = Me.s
         B.m = Mi.m * pE_B
         Me.m = Mi.m - A.m - B.m
-        Power = Mi.m*(Mi.h-A.h) + (Mi.m-A.m)*(A.h-B.h) + (Mi.m-A.m-B.m)*(B.h-Me.h)
+        Power = Mi.m*(Mi.h-A.h) + (Mi.m-A.m)*(A.h-Me.h)
     elif(numExtract == 3):
         TH = steam(P=Mi.P,x=1).T
         TL = steam(P=Me.P,x=1).T
-        TA = 3*(TH-TL)/(numExtract+1) + TL
+        TA = 2*(TH-TL)/(numExtract) + TL
         A.P = steam(T=TA, x=1).P
         hAs = steam(P=A.P, s=ses).h
         A.h = Mi.h - efficiency * (Mi.h - hAs)
         A.T = steam(P=A.P, h=A.h).T
         A.s = steam(P=A.P, h=A.h).s
         A.m = Mi.m * pE_A
-        TB = 2*(TH-TL)/(numExtract+1) + TL
+        TB = (TH-TL)/(numExtract) + TL
         B.P = steam(T=TB, x=1).P
         hBs = steam(P=B.P, s=ses).h
         B.h = Mi.h - efficiency * (Mi.h - hBs)
         B.T = steam(P=B.P, h=B.h).T
         B.s = steam(P=B.P, h=B.h).s
         B.m = Mi.m * pE_B
-        TC = 1*(TH-TL)/(numExtract+1) + TL
-        C.P = steam(T=TC, x=1).P
-        hCs = steam(P=C.P, s=ses).h
-        C.h = Mi.h - efficiency * (Mi.h - hCs)
-        C.T = steam(P=C.P, h=C.h).T
-        C.s = steam(P=C.P, h=C.h).s
+        C.P = Me.P
+        C.h = Me.h
+        C.T = Me.T
+        C.s = Me.s
         C.m = Mi.m * pE_C
         Me.m = Mi.m - A.m - B.m - C.m
-        Power = Mi.m*(Mi.h-A.h) + (Mi.m-A.m)*(A.h-B.h) + (Mi.m-A.m-B.m)*(B.h-C.h) + (Mi.m-A.m-B.m-C.m)*(C.h-Me.h)
+        Power = Mi.m*(Mi.h-A.h) + (Mi.m-A.m)*(A.h-B.h) + (Mi.m-A.m-B.m)*(B.h-Me.h)
     else:
         Me.m = Mi.m
         Power = Mi.m*(Mi.h - Me.h)
