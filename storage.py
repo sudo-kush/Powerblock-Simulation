@@ -187,7 +187,8 @@ Cpkwh = C / Tse / 1000                                                         #
 
 print('Total cost of storage $',C,)
 print('Cost per KWh',Cpkwh,'$/KWh')
-
+print('Electric Power Out: ',round(P/1000,2),'MWe')
+print('Thermal Efficiency: ',round(nth*100,2),'%')
 #%%
 
 Q = Qin
