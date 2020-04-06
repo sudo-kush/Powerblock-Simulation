@@ -32,13 +32,22 @@ pE_E = 5 / 100      # percentExtracted at E
 pE_F = 5 / 100      # percentExtracted at F
 '''
 
-def Cycle(load,PR_HP,PR_IP,PR_LP,pE_A,pE_B,pE_C,pE_D,pE_E,pE_F):
+def Cycle(load,flow):
     
+    PR_HP = 7/19 
+    PR_IP = 1/7
+    PR_LP = .1/1
+    pE_A = 10/100
+    pE_B = 10/100
+    pE_C = 2/100
+    pE_D = 2/100 
+    pE_E = 2/100 
+    pE_F = 2/100 
     # set inital state at the high pressure turbine inlet
     M1 = state()
     M1.T = 585 + 273
     M1.P = 19
-    M1.m = 10
+    M1.m = flow
     M1.h = steam(T=M1.T, P=M1.P).h
     M1.s = steam(T=M1.T, P=M1.P).s
     
@@ -121,7 +130,7 @@ def Cycle(load,PR_HP,PR_IP,PR_LP,pE_A,pE_B,pE_C,pE_D,pE_E,pE_F):
     nth = Power/Qin
     nc = 1 - M6.T / M1.T
     
-    return nth, Power
+    return nth, Power, Qin
  
 
 
