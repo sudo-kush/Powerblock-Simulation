@@ -3,9 +3,9 @@
 import numpy as np
 import power 
 
-nth, P, Qin = power.Cycle(1.0, 10)
+nth, P, Qin = power.Cycle(1.0, 285)
 "Basic Set Up"
-Nt = 120                                                                         #Number of tanks in system
+Nt = 240                                                                       #Number of tanks in system
 Od = 2.03                                                                      #Outer Diameter of tank 'm'
 Wall = .026                                                                    #Wall thickness of tank 'm'
 Id = Od - 2 * (Wall)                                                           #Inner Diameter of tank 'm'
@@ -18,7 +18,7 @@ Pi = np.pi
 Rhos = 1804                                                                    #Density of salt 'kg/m3'
 Cps = 1520
 
-M = -231.48                                                                        #mass flow rate 'kg/s'
+M = -1555.8                                                                    #mass flow rate 'kg/s'
 Mv = M/Rhos                                                                    #Volumetric flow rate 'm3/s'
 
 Tat = 585 + 273                                                                #Top in Temp 'K'
@@ -27,7 +27,7 @@ Tab = 315 + 273                                                                #
 "Thermocline Location and timing"
 
 Thh = L * .2                                                                   #Height of the Thermocline 'm'
-Thop = Thh                                                                       #Thermocline original position 'm'
+Thop = Thh                                                                     #Thermocline original position 'm'
 t = 0                                                                          #Time elapsed 's'
 
 if M >= 0:
@@ -133,7 +133,7 @@ Thos = (Od - Id) / 2                                                           #
 Rdps = Thos / ks                                                               #Thermal resistance of steel tank 'm2K/W'
 
 ki = .1226                                                                     #Heat capacity of insulation
-Thoi = .0508                                                                   #Thickness of insulation 'm'
+Thoi = .1508                                                                   #Thickness of insulation 'm'
 Rdpi = Thoi / ki                                                               #Thermal resistance of insulation 'm2K/W'
 
 h = 50                                                                         #Convection Coefficient of air 'W/m2K'
@@ -179,10 +179,12 @@ Tcp = Cpp * Nt / Tpp                                                           #
 
 "Insulation"
 Cpt = 1700                                                                     #Cost of insulation per tonne
-
+Rhoi = 86                                                                      #Density of insulation 'kg/m3'
+Vi = ((Od + 2 * Thoi)**2 * np.pi / 4  - Od**2 * np.pi / 4) * L * Nt            #Volume of insulation                                                         
+Tci = Cpt * Vi * Rhoi / 1000                                                   #Total cost of insulation
 
 "Total"
-C = Ttc + Tcs + Tcf + Tcp                                                      #Total cost '$'
+C = Ttc + Tcs + Tcf + Tcp + Tci                                                #Total cost '$'
 Cpkwh = C / Tse / 1000                                                         #Cost per KWh '$/KWh'
 
 print('Total cost of storage $',C,)
@@ -191,16 +193,19 @@ print('Electric Power Out: ',round(P/1000,2),'MWe')
 print('Thermal Efficiency: ',round(nth*100,2),'%')
 #%%
 
-Q = 95
+Q = Qin/1000                                                                   #Power out 'MW'
 
 if M >= 0:
-    Q = Q * -1
+    Q = Q * -1                                                                 #Inverting sign to account got energy in or out
 
 if Q >= 0:
     
-    Msf = Q / Cps / (Tot - Tib) * 1000 * 1000
+    Msf = Q / Cps / (Tot - Tib) * 1000 * 1000                                  #Mass flow salt 'kg/s'
     
 if Q <= 0:
     
-    Msf = Q / Cps / (Tit - Tob) * 1000 * 1000
+    Msf = Q / Cps / (Tit - Tob) * 1000 * 1000                                  #Mass flow salt 'kg/s'
  
+
+
+
