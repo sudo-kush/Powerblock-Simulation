@@ -20,40 +20,33 @@ def PRINT(M):
     print("s = ", M.s)
     print()
 
-'''
-PR_HP = 0.5         # pressure ratio of the high pressure turbine
-PR_IP = 0.5         # pressure ratio of the intermediate pressure turbine
-PR_LP = 0.5         # pressure ratio of the low pressure turbine
-pE_A = 5 / 100      # percentExtracted at A
-pE_B = 5 / 100      # percentExtracted at B
-pE_C = 5 / 100      # percentExtracted at C
-pE_D = 5 / 100      # percentExtracted at D
-pE_E = 5 / 100      # percentExtracted at E
-pE_F = 5 / 100      # percentExtracted at F
-'''
-
-def Cycle(load,flow):
+#def Cycle(load,PR_HP,PR_IP,PR_LP,pE_A,pE_B,pE_C,pE_D,pE_E,pE_F):
+def Cycle(load, massFlow):
     
-    PR_HP = 2/19 
-    PR_IP = .8/2
-    PR_LP = .01/.8
+    highPressure = 19
+    intPressure = 2
+    lowPressure = 0.8
+    condPressure = 0.01
+    
     pE_A = 10/100
     pE_B = 10/100
     pE_C = 2/100
     pE_D = 2/100 
     pE_E = 2/100 
     pE_F = 2/100 
+    
     # set inital state at the high pressure turbine inlet
     M1 = state()
     M1.T = 585 + 273
-    M1.P = 19
-    M1.m = flow
+    M1.P = highPressure
+    M1.m = massFlow * load
     M1.h = steam(T=M1.T, P=M1.P).h
     M1.s = steam(T=M1.T, P=M1.P).s
     
     # high pressure turbine states and function
     M2 = state()
     A = state()
+    PR_HP = intPressure / M1.P
     PowerHP = components.Turbine(M1, M2, A, None, None, pE_A, None, None, PR_HP, load)
     
     # reheat after high pressure turbine
@@ -64,6 +57,7 @@ def Cycle(load,flow):
     M4 = state()
     B = state()
     C = state()
+    PR_IP = lowPressure / M3.P
     PowerIP = components.Turbine(M3, M4, B, C, None, pE_B, pE_C, None, PR_IP, load)
     
     # low pressure turbine states and function
@@ -71,6 +65,7 @@ def Cycle(load,flow):
     D = state()
     E = state()
     F = state()
+    PR_LP = condPressure / M4.P
     PowerLP = components.Turbine(M4, M5, D, E, F, pE_D, pE_E, pE_F, PR_LP, load)
     
     # extracted steam through closed feedwater train
@@ -122,7 +117,7 @@ def Cycle(load,flow):
     components.FW_main(None,A,A2,M13,M14)
     
     # heat in from the steam generator
-    Qin_main = components.SteamGenerator(M14, M1)
+    Qin_main = components.SteamGenerator(M14, M1, 0.95)
     
     # efficiency calculations
     Power = PowerHP+PowerIP+PowerLP-PowerPump1-PowerPump2

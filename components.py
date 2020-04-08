@@ -8,7 +8,7 @@ from iapws import IAPWS97 as steam
 
 def Turbine(Mi, Me, A, B, C, pE_A, pE_B, pE_C, PR, load):
     
-    efficiency = (0.86-0.72)/(1.0-0.6)*(load-0.6) + 0.51
+    efficiency = (0.86-0.72)/(1.0-0.6)*load + 0.51
     
     # find exit properties
     ses = Mi.s # isentropic exit entropy (kJ/kg/K)
@@ -163,10 +163,11 @@ def Deaerator(A2, B, Mi, Me):
     Me.h = steam(P=Me.P, x=0).h
     Me.P = Mi.P
         
-def SteamGenerator(Mi, Me):
+def SteamGenerator(Mi, Me, efficiency):
     
     if(Me.m - 0.0001 <= Mi.m <= Me.m + 0.00001):
         Q = Mi.m * (Me.h - Mi.h)
+        Q += Q*(1-efficiency)
     
     return Q
 

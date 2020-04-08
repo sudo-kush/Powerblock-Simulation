@@ -21,22 +21,34 @@ def PRINT(M):
     print("s = ", M.s)
     print()
 
-load = 1.0
+load = .75
+massFlow = 272.2
 
+highPressure = 19
+intPressure = 2
+lowPressure = 0.8
+condPressure = 0.01
+
+pE_A = 10/100
+pE_B = 10/100
+pE_C = 2/100
+pE_D = 2/100 
+pE_E = 2/100 
+pE_F = 2/100 
 
 # set inital state at the high pressure turbine inlet
 M1 = state()
 M1.T = 585 + 273
-M1.P = 13.5
-M1.m = 350
+M1.P = highPressure
+M1.m = massFlow * load
 M1.h = steam(T=M1.T, P=M1.P).h
 M1.s = steam(T=M1.T, P=M1.P).s
 
 # high pressure turbine states and function
 M2 = state()
 A = state()
-PR_HP = 7 / M1.P   # pressure ratio of the high pressure turbine
-pE_A =  10 / 100      # percentExtracted at A
+PR_HP = intPressure / M1.P   # pressure ratio of the high pressure turbine
+#pE_A = .1 / 100      # percentExtracted at A
 PowerHP = components.Turbine(M1, M2, A, None, None, pE_A, None, None, PR_HP, load)
 
 # reheat after high pressure turbine
@@ -47,9 +59,9 @@ Qin_reheat = components.Reheat(M2, M3, 585+273)
 M4 = state()
 B = state()
 C = state()
-PR_IP = 1 / M3.P    # pressure ratio of the intermediate pressure turbine
-pE_B = 10 / 100      # percentExtracted at B
-pE_C = 5 / 100      # percentExtracted at C
+PR_IP = lowPressure / M3.P    # pressure ratio of the intermediate pressure turbine
+#pE_B = .1 / 100      # percentExtracted at B
+#pE_C = .1 / 100      # percentExtracted at C
 PowerIP = components.Turbine(M3, M4, B, C, None, pE_B, pE_C, None, PR_IP, load)
 
 # low pressure turbine states and function
@@ -57,10 +69,10 @@ M5 = state()
 D = state()
 E = state()
 F = state()
-PR_LP = 0.1 / M4.P    # pressure ratio of the low pressure turbine
-pE_D = 5 / 100      # percentExtracted at D
-pE_E = 5 / 100      # percentExtracted at E
-pE_F = 5 / 100      # percentExtracted at F
+PR_LP = condPressure / M4.P    # pressure ratio of the low pressure turbine
+#pE_D = .1 / 100      # percentExtracted at D
+#pE_E = .1 / 100      # percentExtracted at E
+#pE_F = .1 / 100      # percentExtracted at F
 PowerLP = components.Turbine(M4, M5, D, E, F, pE_D, pE_E, pE_F, PR_LP, load)
 
 # extracted steam through closed feedwater train
@@ -113,7 +125,7 @@ components.FW_main(A2,B,B2,M12,M13)
 components.FW_main(None,A,A2,M13,M14)
 
 # heat in from the steam generator
-Qin_main = components.SteamGenerator(M14, M1)
+Qin_main = components.SteamGenerator(M14, M1, 0.95)
 
 # efficiency calculations
 Power = PowerHP+PowerIP+PowerLP-PowerPump1-PowerPump2
@@ -121,7 +133,7 @@ Qin = Qin_reheat + Qin_main
 nth = Power/Qin
 nc = 1 - M6.T / M1.T
 
-print(Power, nth)
+
 
 
 
