@@ -126,7 +126,112 @@ def Cycle(load, massFlow):
     nc = 1 - M6.T / M1.T
     
     return nth, Power, Qin
- 
+
+def CycleP(load, massFlow):
+    
+    highPressure = 19
+    intPressure = 2
+    lowPressure = 0.8
+    condPressure = 0.01
+    
+    pE_A = 10/100
+    pE_B = 10/100
+    pE_C = 2/100
+    pE_D = 2/100 
+    pE_E = 2/100 
+    pE_F = 2/100 
+    
+    # set inital state at the high pressure turbine inlet
+    M1 = state()
+    M1.T = 585 + 273
+    M1.P = highPressure
+    M1.m = massFlow * load
+    M1.h = steam(T=M1.T, P=M1.P).h
+    M1.s = steam(T=M1.T, P=M1.P).s
+    
+    # high pressure turbine states and function
+    M2 = state()
+    A = state()
+    PR_HP = intPressure / M1.P
+    PowerHP = components.Turbine(M1, M2, A, None, None, pE_A, None, None, PR_HP, load)
+    
+    # reheat after high pressure turbine
+    M3 = state()
+    Qin_reheat = components.Reheat(M2, M3, 585+273)
+    
+    # intermediate pressure turbine states and function
+    M4 = state()
+    B = state()
+    C = state()
+    PR_IP = lowPressure / M3.P
+    PowerIP = components.Turbine(M3, M4, B, C, None, pE_B, pE_C, None, PR_IP, load)
+    
+    # low pressure turbine states and function
+    M5 = state()
+    D = state()
+    E = state()
+    F = state()
+    PR_LP = condPressure / M4.P
+    PowerLP = components.Turbine(M4, M5, D, E, F, pE_D, pE_E, pE_F, PR_LP, load)
+    
+    # extracted steam through closed feedwater train
+    A2 = state()
+    B2 = state()
+    D2 = state()
+    E2 = state()
+    F2 = state()
+    components.FW_extracted(None,A,A2)
+    components.FW_extracted(A2,B,B2)
+    components.FW_extracted(None,D,D2)
+    components.FW_extracted(D2,E,E2)
+    components.FW_extracted(E2,F,F2)
+    
+    # [main + extracted steam from LP] though condenser
+    M6 = state()
+    Qout = components.Condenser(F2, M5, M6)
+    
+    # first pump to reach deaerator pressure
+    M7 = state()
+    M7.P = C.P
+    PowerPump1 = components.Pump(M6, M7, 0.85)
+    
+    # feedwater heaters for LP section
+    M8 = state()
+    M9 = state()
+    M10 = state()
+    M10.m = M9.m = M8.m = M7.m
+    components.FW_main(E2,F,F2,M7,M8)
+    components.FW_main(D2,E,E2,M8,M9)
+    components.FW_main(None,D,D2,M9,M10)
+    
+    # deaerator combining extracted steam at C, 
+    # combined feedwater from HP & IP, and main steam
+    M11 = state()
+    M11.P = M10.P
+    components.Deaerator(B2,C,M10,M11)
+    
+    # pump 2 to reach high pressure for the HP turbine
+    M12 = state()
+    M12.P = M1.P
+    PowerPump2 = components.Pump(M11, M12, 0.85)
+    
+    # feedwater heating from HP and IP turbines
+    M14 = state()
+    M13 = state()
+    M13.m=M14.m = M12.m
+    components.FW_main(A2,B,B2,M12,M13)
+    components.FW_main(None,A,A2,M13,M14)
+    
+    # heat in from the steam generator
+    Qin_main = components.SteamGenerator(M14, M1, 0.95)
+    
+    # efficiency calculations
+    Power = PowerHP+PowerIP+PowerLP-PowerPump1-PowerPump2
+    Qin = Qin_reheat + Qin_main
+    nth = Power/Qin
+    nc = 1 - M6.T / M1.T
+    
+    return Power
 
 
 
