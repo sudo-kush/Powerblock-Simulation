@@ -7,8 +7,8 @@ import components
 from iapws import IAPWS97 as steam
 
 class state():
-    T = 0.0 # inlet temperature (K)
-    P = 0.0 # inlet pressure (MPa)
+    T = 0.0 # temperature (K)
+    P = 0.0 # pressure (MPa)
     m = 0.0 # mass flow rate (kg/s)
     h = 0.0 # specific enthalpy (kJ/kg)
     s = 0.0 # specific entropy (kJ/kgK)
@@ -21,48 +21,84 @@ def PRINT(M):
     print("s = ", M.s)
     print()
 
-load = .75
-massFlow = 272.2
+def PRINTe(M):
+    print("T = ", (M.T-273)*9/5+32, "F")
+    print("P = ", M.P*145.038, "psi")
+    print("m = ", M.m*7936.64, "lb/h")
+    print("h = ", M.h*0.429923, "btu/lb")
+    #print("s = ", M.s)
+    print()
 
-highPressure = 19
-intPressure = 2
-lowPressure = 0.8
-condPressure = 0.01
+# -----------------------------------------------------------------------------
+# Initial Design Conditions
+# -----------------------------------------------------------------------------
+load = 1.0                  # load as percentage of designed mass flow
+massFlow = 450              # mass flow rate at 100% load (kg/s)
 
-pE_A = 10/100
-pE_B = 10/100
-pE_C = 2/100
-pE_D = 2/100 
-pE_E = 2/100 
-pE_F = 2/100 
+mainTemp =   585 + 273      # temperature at inlet of HP turbine (K)
+reheatTemp = 585 + 273      # temperature at inlet of IP turbine (K)
+
+highPressure = 19           # pressure at inlet of HP turbine (MPa)
+intPressure = 2             # pressure at inlet of IP turbine (MPa)
+lowPressure = 0.8           # pressure at inlet of LP turbine (MPa)
+condPressure = 0.01         # pressure at inlet of condensor  (MPa)
+
+pE_A = 10/100               # percent of mass flow extracted at A
+pE_B = 10/100               # percent of mass flow extracted at B
+pE_C = 5/100                # percent of mass flow extracted at C
+#pE_D = 000                 # percent of mass flow extracted at D
+#pE_E = 000                 # percent of mass flow extracted at E
+#pE_F = 000                 # percent of mass flow extracted at F
+
+TTD = 5/1.8                 # terminal temperature difference (K)
+DCA = 10/1.8                # drain cooler approach (K)
+deaeratorInletPressure = 0.2
+
+# -----------------------------------------------------------------------------
+# Power Cycle
+# -----------------------------------------------------------------------------
 
 # set inital state at the high pressure turbine inlet
 M1 = state()
-M1.T = 585 + 273
+M1.T = mainTemp
 M1.P = highPressure
 M1.m = massFlow * load
 M1.h = steam(T=M1.T, P=M1.P).h
 M1.s = steam(T=M1.T, P=M1.P).s
 
+# set deaeration conditions for determining extraction flows
+deaerationConditions = components.preheatConditions()
+deaerationConditions.condPressure = condPressure
+deaerationConditions.P = deaeratorInletPressure
+deaerationConditions.T = steam(P=deaerationConditions.P,x=0).T
+deaerationConditions.h = steam(P=deaerationConditions.P,x=0).h
+deaerationConditions.s = steam(P=deaerationConditions.P,x=0).s
+deaerationConditions.TTD = TTD
+deaerationConditions.DCA = DCA
+
+deaeratorCondensate = components.preheatConditions()
+deaeratorCondensate.condPressure = 0.02
+deaeratorCondensate.P = M1.P
+deaeratorCondensate.TTD = -5/1.8
+deaeratorCondensate.DCA = 10/1.8
+
 # high pressure turbine states and function
 M2 = state()
 A = state()
 PR_HP = intPressure / M1.P   # pressure ratio of the high pressure turbine
-#pE_A = .1 / 100      # percentExtracted at A
-PowerHP = components.Turbine(M1, M2, A, None, None, pE_A, None, None, PR_HP, load)
+PowerHP = components.Turbine(M1,M2,A,None,None,pE_A,None,None,None,PR_HP,load)
+deaeratorCondensate.T = steam(P=A.P,x=0).T
 
 # reheat after high pressure turbine
 M3 = state()
-Qin_reheat = components.Reheat(M2, M3, 585+273)
+Qin_reheat = components.Reheat(M2, M3, reheatTemp)
 
 # intermediate pressure turbine states and function
 M4 = state()
 B = state()
 C = state()
 PR_IP = lowPressure / M3.P    # pressure ratio of the intermediate pressure turbine
-#pE_B = .1 / 100      # percentExtracted at B
-#pE_C = .1 / 100      # percentExtracted at C
-PowerIP = components.Turbine(M3, M4, B, C, None, pE_B, pE_C, None, PR_IP, load)
+PowerIP = components.Turbine(M3,M4,B,C,None,pE_B,pE_C,None,None,PR_IP,load)
 
 # low pressure turbine states and function
 M5 = state()
@@ -70,31 +106,24 @@ D = state()
 E = state()
 F = state()
 PR_LP = condPressure / M4.P    # pressure ratio of the low pressure turbine
-#pE_D = .1 / 100      # percentExtracted at D
-#pE_E = .1 / 100      # percentExtracted at E
-#pE_F = .1 / 100      # percentExtracted at F
-PowerLP = components.Turbine(M4, M5, D, E, F, pE_D, pE_E, pE_F, PR_LP, load)
+PowerLP = components.Turbine(M4,M5,D,E,F,None,None,None,deaerationConditions,PR_LP,load)
 
-# extracted steam through closed feedwater train
+# extracted steam through closed feedwater heaters
 A2 = state()
 B2 = state()
-C2 = state()
 D2 = state()
 E2 = state()
 F2 = state()
-components.FW_extracted(None,A,A2)
-components.FW_extracted(A2,B,B2)
-components.FW_extracted(None,D,D2)
-components.FW_extracted(D2,E,E2)
-components.FW_extracted(E2,F,F2)
+components.FW_extracted(A,A2,B,B2,None,None,deaeratorCondensate)
+components.FW_extracted(D,D2,E,E2,F,F2,deaerationConditions)
 
 # [main + extracted steam from LP] though condenser
 M6 = state()
 Qout = components.Condenser(F2, M5, M6)
 
-# first pump to reach deaerator pressure
+
 M7 = state()
-M7.P = C.P
+M7.P = deaerationConditions.P
 PowerPump1 = components.Pump(M6, M7, 0.85)
 
 # feedwater heaters for LP section
@@ -109,8 +138,7 @@ components.FW_main(None,D,D2,M9,M10)
 # deaerator combining extracted steam at C, 
 # combined feedwater from HP & IP, and main steam
 M11 = state()
-M11.P = M10.P
-components.Deaerator(B2,C,M10,M11)
+components.Deaerator(B2,C,M10,M11,deaeratorCondensate)
 
 # pump 2 to reach high pressure for the HP turbine
 M12 = state()
@@ -132,10 +160,6 @@ Power = PowerHP+PowerIP+PowerLP-PowerPump1-PowerPump2
 Qin = Qin_reheat + Qin_main
 nth = Power/Qin
 nc = 1 - M6.T / M1.T
-
-
-
-
 
 
 
