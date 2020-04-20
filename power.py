@@ -147,7 +147,7 @@ def Cycle(load,massFlow):
     nc = 1 - M6.T / M1.T
 
     
-    return nth, Power, Qin
+    return nth, Power/1000, Qin/1000
  
 
 
