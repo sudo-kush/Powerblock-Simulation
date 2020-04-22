@@ -3,26 +3,10 @@
 import numpy as np
 import power 
  
-
-
+    
 class storage():
     
-    def __init__(self, Q): 
-        self.Q = Q 
-        
-    def getQ(self):
-        return self.Q
-    
-    def setQ(self, Q):
-        self.Q = Q
-    
-    
-    if Q > 370:
-        Q = 370 
-    
-    if Q < -370: 
-        Q = -370 
-        
+    Q = 370 
         
     "Basic Set Up"
     Nt = 340                                                                       #Number of tanks in system
@@ -80,7 +64,7 @@ class storage():
         if Thl <= Thh:
             Tob = Tob + Thtc * (Thh - Thl)
             
-        print(round(ttfh,2),'hours until full')
+        #print(round(ttfh,2),'hours until full')
         
         
     if M <= 0:
@@ -101,7 +85,7 @@ class storage():
         if Thl <= Thh:
             Tab = Tib + Thtc * (Thh - Thl)
             
-        print(round(tteh,2),'hours until empty')
+        #print(round(tteh,2),'hours until empty')
         
     Vtt = 12537 * .64                                                              #Total volume of filler
     r = .002                                                                       #Radius of filler
@@ -238,8 +222,64 @@ class storage():
     C = Ttc + Tcs + Tcf + Tcp + Tci                                                #Total cost '$'
     Cpkwh = C / Tse / 1000                                                         #Cost per KWh '$/KWh'
     
-    #print('Total cost of storage $',round(C/1000000,2),'million')
-    #print('Cost per KWh',round(Cpkwh,2),'$/KWh')
+    def storage_cost(self):
+       return print('Total cost of storage $',round(storage.C/1000000,2),'million')
+        
+    def costperkWh(self):
+        return print('Cost per KWh',round(storage.Cpkwh,2),'$/KWh')
     
+    def max_stored(self):
+        return print('Total possible energy stored =',round(storage.Tse,2),'MWh')
     
+    def energy_stored(self):
+        return print('Energy currently in storage =',round(storage.Se,2),'MWh')
     
+    def energy_in(self):
+        return print('Energy in',round(storage.Qi,2),'MJ/s') 
+    
+    def energy_out(self):
+        return print('Energy out',round(storage.Qo,2),'MJ/s')
+    
+    def time_2fill(self):
+        return print(round(storage.ttfh,2),'hours until full')
+    
+    def time_2empty(self): 
+        return print(round(storage.tteh,2),'hours until empty')
+    
+    def location_of_thermocline(self, t):
+        M = storage.M
+        tf = .2                                                                        #Size of Thermocline via percentage of tank height
+        Thh = storage.L * tf                                                                   #Height of the Thermocline 'm'
+        Thop = Thh                                                                     #Thermocline original position 'm'
+                                                                                 #Time elapsed 's'
+        
+        if M >= 0:
+            Thtc = (storage.Tat - storage.Tab) / Thh                                                   #Rate of change of temperature in thermocline 'K/m"
+            Thv = storage.Mv / storage.At                                                              #Thermocline Velocity 'm/s'
+        
+            Thl = Thv * t
+            
+            if Thl > Thh:
+                Thl = Thh
+                    
+                   
+        if M <= 0:
+            Thtc = (storage.Tat - storage.Tab) / Thh                                                   #Rate of change of temperature in thermocline 'K/m"
+            Thv = storage.Mv / storage.At                                                              #Thermocline Velocity 'm/s'
+        
+            Thl = Thop + Thv * t  
+            
+            if Thl < 0:
+                Thl = 0                                                    #Location of Thermocline 'm'
+    
+        
+        return Thl
+    
+    def massflow_salt(self):
+        return storage.M
+    
+    def hot_temp(self):
+        return storage.Tat
+    
+    def cold_temp(self):
+        return storage.Tab 
