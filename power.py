@@ -149,7 +149,7 @@ def Cycle(load,massFlow):
     
     return nth, Power/1000, Qin/1000
  
-def Cycle_withT(T,massFlow, load):
+def CycleQ(massFlow, load):
     #--------------------------------------------------------------------------
     # Initial Design Conditions
     #--------------------------------------------------------------------------
@@ -284,7 +284,7 @@ def Cycle_withT(T,massFlow, load):
     nc = 1 - M6.T / M1.T
 
     
-    return nth, Power/1000, Qin/1000
+    return Qin/1000
  
 
 

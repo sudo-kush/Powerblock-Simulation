@@ -29,16 +29,17 @@ Q = np.zeros(len(x0))
 
 for i in range(len(x0)):
     eff[i], P[i], Q[i] = power.Cycle(1-y0[i]/reactor, massflow)
-
+    eff[i] = eff[i]*100
+    
 fig1 = plt.figure()
 plt.plot(y0, eff) 
-plt.xlabel('MW Extracted for Storage')
-plt.ylabel('Steam Plant Effeciency')
+plt.xlabel('Amount of Energy put in Storage (MW)')
+plt.ylabel('Steam Plant Efficiency %')
 
 fig2 = plt.figure() 
 plt.plot(y0, P)
-plt.xlabel('MW Extracted for Storage')
-plt.ylabel('Power Output MWe') 
+plt.xlabel('Amount of Enerfy put in Storage (MW)')
+plt.ylabel('Power Output (MWe)') 
 
 plt.show(fig1)
 plt.show(fig2)
