@@ -9,6 +9,7 @@ from storage import storage
 import power
 import numpy as np 
 import matplotlib.pyplot as plt 
+import seaborn as sns
 
 # -----------------------------------------------------------------------------
 #Set up Testing Conditions 
@@ -54,9 +55,9 @@ for i in range(len(new_h)):
 # -----------------------------------------------------------------------------
 #Set up Inital Design Conditions for Graphing 
 
-steam_massflow = 500 
-load = np.linspace(0.9,0.95,40)
-tolerance = 5.0
+steam_massflow = 450 
+load = np.linspace(0.91,0.96,100)
+tolerance = 1.0
 real_load = np.zeros(15) 
 # -----------------------------------------------------------------------------
 #Run throught iter to find actual load 
@@ -79,11 +80,12 @@ for a in range(len(Power)):
     nth[a] = nth[a]*100 
 # -----------------------------------------------------------------------------   
 #Plot TES Exit Temperature vs. Thermal Efficiency     
-
+sns.set_color_codes("pastel")
 fig1 = plt.figure()
 plt.plot(temp_grad, nth)
 plt.xlabel('TES Exit Temperature (C)')
 plt.ylabel('Thermal Efficiency %')
+plt.title('Powerplant Performance')
 # -----------------------------------------------------------------------------
 #Plot TES Exit Temperature vs. Power Output 
 
@@ -91,6 +93,7 @@ fig2 = plt.figure()
 plt.plot(temp_grad, Power)
 plt.xlabel('TES Exit Temperature (C)')
 plt.ylabel('Power Output (MWe)')
+plt.title('Powerplant Performance') 
 # -----------------------------------------------------------------------------
 #Print plots to console 
 
