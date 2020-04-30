@@ -6,7 +6,7 @@ import power
     
 class storage():
     
-    Q = 370 
+    Q = 250
         
     "Basic Set Up"
     Nt = 340                                                                       #Number of tanks in system
@@ -86,17 +86,18 @@ class storage():
             Tab = Tib + Thtc * (Thh - Thl)
             
         #print(round(tteh,2),'hours until empty')
-        
-    Vtt = 12537 * .64                                                              #Total volume of filler
+
+    K = 12                                                                         #Thermal Conductivity of Solid     
+    Vtt = V * .64                                                                  #Total volume of filler
     r = .002                                                                       #Radius of filler
     Vpb = 4/3 * 3.14159265 * r**3                                                  #Volume of 1 ball
     Sapb = 4 * 3.14159265 * r**2                                                   #Surface area of 1 ball
     Nb = Vtt / Vpb                                                                 #Number of balls
     Sat = Nb * Sapb                                                                #Total Surface area
     Saic = Sat * tf                                                                #Surface area in contact with thermocline
-    
-    Qmax = Saic * 6 * 10 /1000/1000
-    
+    U = 1/(1/13+1/K)                                                               #Overall heat transfer rate
+    Qmax = Saic * U * 10 /1000/1000                                                #Max heat transfer rate of storage
+
     "Energy Calculations"
     
     "Alumina"
@@ -220,7 +221,50 @@ class storage():
     
     "Total"
     C = Ttc + Tcs + Tcf + Tcp + Tci                                                #Total cost '$'
-    Cpkwh = C / Tse / 1000                                                         #Cost per KWh '$/KWh'
+    Cpkwh = C / Tse / 1000    
+
+    "Checking minimum size of particle"
+
+    "Alumina"
+    
+    Ka = 12                                                                        #Thermal Conductivity of Solid     
+    Vtta = V * .64                                                                 #Total volume of filler
+    ra = .002                                                                      #Radius of filler
+    Vpba = 4/3 * 3.14159265 * ra**3                                                #Volume of 1 ball
+    Sapba = 4 * 3.14159265 * ra**2                                                 #Surface area of 1 ball
+    Nba = Vtta / Vpba                                                              #Number of balls
+    Sata = Nba * Sapba                                                             #Total Surface area
+    Saica = Sata * tf                                                              #Surface area in contact with thermocline
+    Ua = 1/(1/13+1/Ka)
+    Qmaxa = Saica * Ua * 10 /1000/1000  
+    
+    "Steel Slag"
+    
+    Ks = 1.51                                                                      #Thermal Conductivity of Solid     
+    Vtts = V * .64                                                                 #Total volume of filler
+    rs = .002   #.00034                                                            #Radius of filler
+    Vpbs = 4/3 * 3.14159265 * rs**3                                                #Volume of 1 ball
+    Sapbs = 4 * 3.14159265 * rs**2                                                 #Surface area of 1 ball
+    Nbs = Vtts / Vpbs                                                              #Number of balls
+    Sats = Nbs * Sapbs                                                             #Total Surface area
+    Saics = Sats * tf                                                              #Surface area in contact with thermocline
+    Us = 1/(1/13+1/Ks)
+    Qmaxs = Saics * Us * 10 /1000/1000  
+    
+    "Fire Brick"
+    
+    Kf = 3.8                                                                       #Thermal Conductivity of Solid     
+    Vttf = V * .64                                                                 #Total volume of filler
+    rf = .002   #.00094                                                            #Radius of filler
+    Vpbf = 4/3 * 3.14159265 * rf**3                                                #Volume of 1 ball
+    Sapbf = 4 * 3.14159265 * rf**2                                                 #Surface area of 1 ball
+    Nbf = Vttf / Vpbf                                                              #Number of balls
+    Satf = Nbf * Sapbf                                                             #Total Surface area
+    Saicf = Satf * tf                                                              #Surface area in contact with thermocline
+    Uf = 1/(1/13+1/Kf)
+    Qmaxf = Saicf * Uf * 10 /1000/1000  
+    
+    
     
     def storage_cost(self):
        return print('Total cost of storage $',round(storage.C/1000000,2),'million')
@@ -248,14 +292,14 @@ class storage():
     
     def location_of_thermocline(self, t):
         M = storage.M
-        tf = .2                                                                        #Size of Thermocline via percentage of tank height
-        Thh = storage.L * tf                                                                   #Height of the Thermocline 'm'
-        Thop = Thh                                                                     #Thermocline original position 'm'
-                                                                                 #Time elapsed 's'
+        tf = .2                                                                   #Size of Thermocline via percentage of tank height
+        Thh = storage.L * tf                                                      #Height of the Thermocline 'm'
+        Thop = Thh                                                                #Thermocline original position 'm'
+                                                                            
         
         if M >= 0:
-            Thtc = (storage.Tat - storage.Tab) / Thh                                                   #Rate of change of temperature in thermocline 'K/m"
-            Thv = storage.Mv / storage.At                                                              #Thermocline Velocity 'm/s'
+            Thtc = (storage.Tat - storage.Tab) / Thh                              #Rate of change of temperature in thermocline 'K/m"
+            Thv = storage.Mv / storage.At                                         #Thermocline Velocity 'm/s'
         
             Thl = Thv * t
             
@@ -264,13 +308,13 @@ class storage():
                     
                    
         if M <= 0:
-            Thtc = (storage.Tat - storage.Tab) / Thh                                                   #Rate of change of temperature in thermocline 'K/m"
-            Thv = storage.Mv / storage.At                                                              #Thermocline Velocity 'm/s'
+            Thtc = (storage.Tat - storage.Tab) / Thh                              #Rate of change of temperature in thermocline 'K/m"
+            Thv = storage.Mv / storage.At                                         #Thermocline Velocity 'm/s'
         
             Thl = Thop + Thv * t  
             
             if Thl < 0:
-                Thl = 0                                                    #Location of Thermocline 'm'
+                Thl = 0                                                           #Location of Thermocline 'm'
     
         
         return Thl
