@@ -23,7 +23,7 @@ Components: This file has all the equation that model turbines, condensor, steam
 
 Storage: This file models the thermal energy packed bed thermocline system that is implemented in the scenarios ran. You can see use this file to see total cost of storage, amount of tanks, location of thermocline, time needed to fill for a certain amount of energy, etc.  
 
-Cycle: This file will go through one iteration of steam generation cycle. You can see stuff liek carnot efficieny, rankine efficiency, heat input (Qin), power output from each turbine, power required by the pumps, etc. 
+Cycle: This file will go through one iteration of steam generation cycle. You can see stuff like carnot efficiency, rankine efficiency, heat input (Qin), power output from each turbine, power required by the pumps, etc. 
 
 Power: This file is basically the cycle file in function form where you can alter the load and the mass flow rate. 
 
